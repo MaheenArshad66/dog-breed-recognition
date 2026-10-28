@@ -1,23 +1,181 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dog Breed Recognition AI</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0b1220">
+  <title>DogSense AI — Dog Breed Recognition</title>
+  <style>
+    :root {
+      --bg: #08111f;
+      --surface: #101d30;
+      --surface-2: #14243a;
+      --text: #f2f7ff;
+      --muted: #a7b6cb;
+      --line: rgba(181, 204, 232, .15);
+      --teal: #43e0c1;
+      --teal-dark: #143d3a;
+      --blue: #78a9ff;
+      --radius: 22px;
+      color-scheme: dark;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(ellipse at 82% 0%, rgba(38, 179, 166, .13), transparent 36%),
+        radial-gradient(ellipse at 0% 30%, rgba(70, 112, 222, .12), transparent 34%),
+        var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+    a { color: inherit; text-decoration: none; }
+    .wrap { width: min(1120px, calc(100% - 40px)); margin: 0 auto; }
+    .nav { display: flex; align-items: center; justify-content: space-between; padding: 23px 0; border-bottom: 1px solid var(--line); }
+    .brand { display: flex; align-items: center; gap: 11px; font-weight: 800; letter-spacing: -.03em; font-size: 19px; }
+    .brand-mark { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 13px; background: var(--teal); color: #06201d; font-size: 21px; }
+    .nav-tag { border: 1px solid var(--line); border-radius: 999px; padding: 8px 13px; color: var(--muted); font-size: 12px; }
+    .hero { display: grid; grid-template-columns: 1.02fr .98fr; gap: 50px; align-items: center; padding: 62px 0 58px; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 8px; color: var(--teal); font-weight: 700; font-size: 12px; letter-spacing: .13em; text-transform: uppercase; }
+    .eyebrow-dot { width: 7px; height: 7px; background: var(--teal); border-radius: 50%; box-shadow: 0 0 15px var(--teal); }
+    h1 { font-size: clamp(38px, 5.2vw, 64px); line-height: 1.03; letter-spacing: -.055em; margin: 18px 0; max-width: 600px; }
+    h1 span { color: var(--teal); }
+    .hero-copy { color: var(--muted); font-size: 16px; max-width: 490px; margin: 0 0 26px; }
+    .stats { display: flex; flex-wrap: wrap; gap: 25px; margin-top: 30px; }
+    .stat strong { display: block; font-size: 21px; letter-spacing: -.03em; }
+    .stat span { display: block; color: var(--muted); font-size: 12px; }
+    .upload-card { background: linear-gradient(150deg, rgba(21, 39, 61, .98), rgba(12, 25, 42, .98)); border: 1px solid rgba(181,204,232,.18); border-radius: 28px; padding: 22px; box-shadow: 0 24px 70px rgba(0,0,0,.24); }
+    .card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; gap: 10px; }
+    .card-head h2 { margin: 0; font-size: 17px; letter-spacing: -.02em; }
+    .pill { font-size: 11px; font-weight: 700; color: var(--teal); background: rgba(67,224,193,.1); border: 1px solid rgba(67,224,193,.2); padding: 6px 9px; border-radius: 999px; white-space: nowrap; }
+    .dropzone { min-height: 240px; border: 1.5px dashed rgba(133,169,205,.38); border-radius: 19px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 18px; text-align: center; background: rgba(5,13,24,.42); transition: border-color .2s, background .2s; overflow: hidden; }
+    .dropzone.drag { border-color: var(--teal); background: rgba(67,224,193,.07); }
+    .upload-icon { width: 55px; height: 55px; display: grid; place-items: center; border-radius: 18px; background: rgba(67,224,193,.11); color: var(--teal); font-size: 26px; margin-bottom: 12px; }
+    .drop-title { font-weight: 700; margin: 0 0 4px; }
+    .drop-sub { font-size: 12px; color: var(--muted); margin: 0 0 14px; }
+    .file-btn { display: inline-block; border: 1px solid rgba(67,224,193,.35); color: var(--teal); border-radius: 11px; padding: 9px 14px; font-size: 12px; font-weight: 750; cursor: pointer; }
+    #imageInput { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+    #preview { max-width: 100%; max-height: 230px; object-fit: contain; border-radius: 13px; }
+    .preview-name { color: var(--muted); font-size: 11px; margin-top: 9px; overflow-wrap: anywhere; }
+    .predict-btn { width: 100%; border: 0; border-radius: 13px; margin-top: 14px; padding: 14px 18px; background: var(--teal); color: #05201c; font: inherit; font-size: 14px; font-weight: 850; cursor: pointer; transition: transform .18s, opacity .18s; }
+    .predict-btn:hover:not(:disabled) { transform: translateY(-1px); }
+    .predict-btn:disabled { opacity: .45; cursor: not-allowed; }
+    .result { margin-top: 15px; background: rgba(5,13,24,.55); border: 1px solid var(--line); border-radius: 15px; padding: 15px; display: none; }
+    .result.show { display: block; }
+    .result-label { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .1em; font-weight: 750; }
+    .result-breed { font-size: 22px; font-weight: 850; letter-spacing: -.035em; margin: 3px 0 8px; }
+    .confidence-row { display: flex; justify-content: space-between; color: var(--muted); font-size: 12px; gap: 10px; }
+    .confidence-row strong { color: var(--teal); }
+    .bar { height: 6px; border-radius: 999px; background: rgba(181,204,232,.13); margin-top: 8px; overflow: hidden; }
+    .bar-fill { width: 0%; height: 100%; background: linear-gradient(90deg, #35c9b0, #78f0d9); border-radius: inherit; transition: width .5s ease; }
+    .status { min-height: 18px; color: var(--muted); font-size: 12px; margin: 10px 2px 0; }
+    .section { padding: 27px 0 70px; }
+    .section-head { display: flex; align-items: end; justify-content: space-between; gap: 18px; margin-bottom: 21px; }
+    .section-head h2 { font-size: clamp(24px, 3vw, 34px); letter-spacing: -.045em; margin: 0 0 5px; }
+    .section-head p { color: var(--muted); font-size: 13px; margin: 0; }
+    .breed-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 13px; }
+    .breed { border: 1px solid var(--line); background: rgba(16,29,48,.78); border-radius: 18px; padding: 17px 14px; min-height: 118px; transition: border-color .2s, transform .2s; }
+    .breed:hover { transform: translateY(-3px); border-color: rgba(67,224,193,.42); }
+    .breed-emoji { font-size: 26px; margin-bottom: 9px; }
+    .breed h3 { font-size: 13px; margin: 0 0 3px; letter-spacing: -.02em; }
+    .breed p { font-size: 11px; color: var(--muted); margin: 0; }
+    .how { display: grid; grid-template-columns: repeat(3, 1fr); gap: 13px; margin-top: 27px; }
+    .step { border-top: 1px solid var(--line); padding: 17px 4px; display: flex; gap: 13px; }
+    .step-no { flex: 0 0 30px; height: 30px; display: grid; place-items: center; border: 1px solid rgba(67,224,193,.35); color: var(--teal); border-radius: 10px; font-weight: 800; font-size: 12px; }
+    .step h3 { margin: 0 0 4px; font-size: 13px; }
+    .step p { margin: 0; color: var(--muted); font-size: 12px; }
+    footer { border-top: 1px solid var(--line); padding: 22px 0 28px; color: var(--muted); font-size: 12px; }
+    footer .wrap { display: flex; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
+    @media (max-width: 850px) {
+      .hero { grid-template-columns: 1fr; gap: 28px; padding-top: 43px; }
+      .hero-copy { max-width: 650px; }
+      .breed-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 520px) {
+      .wrap { width: min(100% - 26px, 1120px); }
+      .nav { padding: 16px 0; }
+      .nav-tag { display: none; }
+      .hero { padding: 36px 0 42px; }
+      .upload-card { padding: 14px; border-radius: 22px; }
+      .dropzone { min-height: 205px; }
+      .breed-grid { grid-template-columns: repeat(2, 1fr); }
+      .how { grid-template-columns: 1fr; gap: 0; }
+      .stats { gap: 18px; }
+    }
+  </style>
 </head>
 <body>
-    <h1>Dog Breed Recognition AI</h1>
-    <p>Upload a dog image to identify its breed.</p>
+  <header class="wrap nav">
+    <a class="brand" href="#" aria-label="DogSense AI home">
+      <span class="brand-mark">🐾</span>
+      <span>DogSense <span style="color:#43e0c1">AI</span></span>
+    </a>
+    <span class="nav-tag">● AI-POWERED BREED IDENTIFIER</span>
+  </header>
 
-    <input type="file" id="imageInput" accept="image/*">
-    <br><br>
-    <img id="preview" alt="Image preview" width="250" hidden>
-    <br><br>
-    <button id="predictButton" disabled>Predict Breed</button>
+  <main>
+    <section class="wrap hero">
+      <div>
+        <div class="eyebrow"><span class="eyebrow-dot"></span> Smart breed recognition</div>
+        <h1>Meet your dog’s breed with <span>AI.</span></h1>
+        <p class="hero-copy">Upload a photo and let our image recognition model identify which of five popular dog breeds looks most like your best friend.</p>
+        <div class="stats">
+          <div class="stat"><strong>5 breeds</strong><span>Supported categories</span></div>
+          <div class="stat"><strong>MobileNetV2</strong><span>Deep learning model</span></div>
+          <div class="stat"><strong>Instant</strong><span>Prediction response</span></div>
+        </div>
+      </div>
 
-    <h2 id="result">Your prediction will appear here.</h2>
-    <p id="confidence"></p>
+      <section class="upload-card" aria-label="Dog image prediction">
+        <div class="card-head">
+          <h2>Analyze a dog photo</h2>
+          <span class="pill">● MODEL READY</span>
+        </div>
+        <div class="dropzone" id="dropzone">
+          <div id="emptyState">
+            <div class="upload-icon">↑</div>
+            <p class="drop-title">Drop your image here</p>
+            <p class="drop-sub">JPG, PNG or WEBP · One dog per photo works best</p>
+            <label class="file-btn" for="imageInput">Choose an image</label>
+          </div>
+          <img id="preview" alt="Selected dog image preview" hidden>
+          <div class="preview-name" id="fileName"></div>
+        </div>
+        <input type="file" id="imageInput" accept="image/*">
+        <button class="predict-btn" id="predictButton" disabled>✨ &nbsp; Predict breed</button>
+        <p class="status" id="status" aria-live="polite">Upload a photo to get started.</p>
+        <div class="result" id="resultPanel" aria-live="polite">
+          <div class="result-label">AI prediction</div>
+          <div class="result-breed" id="resultBreed">Breed name</div>
+          <div class="confidence-row"><span>Model confidence</span><strong id="confidence">0%</strong></div>
+          <div class="bar"><div class="bar-fill" id="barFill"></div></div>
+        </div>
+      </section>
+    </section>
 
-    <script src="script.js"></script>
+    <section class="wrap section">
+      <div class="section-head">
+        <div>
+          <h2>Five breeds. One smart model.</h2>
+          <p>The model is currently trained to recognize these breeds.</p>
+        </div>
+      </div>
+      <div class="breed-grid">
+        <article class="breed"><div class="breed-emoji">🐕</div><h3>German Shepherd</h3><p>Loyal & intelligent</p></article>
+        <article class="breed"><div class="breed-emoji">🐺</div><h3>Siberian Husky</h3><p>Energetic & striking</p></article>
+        <article class="breed"><div class="breed-emoji">🐶</div><h3>Beagle</h3><p>Curious & friendly</p></article>
+        <article class="breed"><div class="breed-emoji">🦮</div><h3>Golden Retriever</h3><p>Gentle & outgoing</p></article>
+        <article class="breed"><div class="breed-emoji">🐾</div><h3>Pug</h3><p>Small & charming</p></article>
+      </div>
+      <div class="how">
+        <div class="step"><span class="step-no">01</span><div><h3>Upload a photo</h3><p>Select a clear dog image from your device.</p></div></div>
+        <div class="step"><span class="step-no">02</span><div><h3>Run the AI model</h3><p>The image is resized and analyzed by the trained model.</p></div></div>
+        <div class="step"><span class="step-no">03</span><div><h3>See the result</h3><p>View the predicted breed and model confidence score.</p></div></div>
+      </div>
+    </section>
+  </main>
+  <footer><div class="wrap"><span>DogSense AI · Dog Breed Recognition</span><span>Built with deep learning · MobileNetV2</span></div></footer>
+  <script src="script.js"></script>
 </body>
 </html>
