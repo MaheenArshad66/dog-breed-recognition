@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dog Breed Recognition AI</title>
+</head>
+<body>
+    <h1>Dog Breed Recognition AI</h1>
+    <p>Upload a dog image to identify its breed.</p>
+
+    <input type="file" id="imageInput" accept="image/*">
+    <br><br>
+    <img id="preview" alt="Image preview" width="250" hidden>
+    <br><br>
+    <button id="predictButton" disabled>Predict Breed</button>
+
+    <h2 id="result">Your prediction will appear here.</h2>
+    <p id="confidence"></p>
+
+    <script src="script.js"></script>
+</body>
+</html>
